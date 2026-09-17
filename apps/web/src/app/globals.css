@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --space:   #03060F;
+  --aurora:  #00FFB2;
+  --stellar: #4DA6FF;
+  --alert:   #FF4D6D;
+  --orbit:   #FFB84D;
+}
+
+* {
+  box-sizing: border-box;
+  margin:  0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--space);
+  color: #E2E8F0;
+  font-family: Inter, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scanline overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(77,166,255,0.3); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(77,166,255,0.6); }
+
+/* Panel glass effect */
+.glass {
+  background: rgba(6,13,26,0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(77,166,255,0.12);
+}
+
+/* Aurora glow */
+.glow-aurora { text-shadow: 0 0 20px rgba(0,255,178,0.5); }
+.glow-stellar { text-shadow: 0 0 20px rgba(77,166,255,0.5); }
+
+/* Animated border */
+.border-animated {
+  position: relative;
+}
+.border-animated::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(77,166,255,0.4), transparent, rgba(0,255,178,0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
