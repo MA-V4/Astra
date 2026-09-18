@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from .routes import satellites, flights, earthquakes, fires, launches, anomalies, vessels
+from .routes import change_detection
+
 
 app = FastAPI(title="ASTRA API", version="0.1.0")
 
@@ -19,6 +20,7 @@ app.include_router(fires.router)
 app.include_router(launches.router)
 app.include_router(anomalies.router)
 app.include_router(vessels.router)
+app.include_router(change_detection.router)
 
 
 @app.get("/health")
