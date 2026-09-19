@@ -3,12 +3,13 @@ from typing import Any
 
 import httpx
 from fastapi import APIRouter
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(extra="ignore", env_file=".env")
     nasa_firms_key: str = ""
-    class Config:
-        env_file = ".env"
+
 
 settings = Settings()
 router   = APIRouter()
@@ -26,7 +27,7 @@ async def get_fires():
         return _fire_cache
 
     if not settings.nasa_firms_key:
-        return _fire_cache  # return empty without key
+        return _fire_cache
 
     try:
         url = (
@@ -36,7 +37,7 @@ async def get_fires():
         async with httpx.AsyncClient() as client:
             r = await client.get(url, timeout=15)
             r.raise_for_status()
-            lines = r.text.strip().split("\n")
+            lines   = r.text.strip().split("\n")
             headers = lines[0].split(",")
 
             _fire_cache = []
