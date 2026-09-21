@@ -512,8 +512,8 @@ class TestBriefingService:
     def test_filter_region_by_distance(self):
         from src.services.briefing import filter_region
         items = [
-            {"lat": 51.5, "lon": -0.1},   # London — within 100km
-            {"lat": 53.5, "lon": -2.2},   # Manchester — ~260km away
+            {"lat": 51.5, "lon": -0.1},   # London - within 100km
+            {"lat": 53.5, "lon": -2.2},   # Manchester - ~260km away
         ]
         result = filter_region(items, 51.5, -0.1, 100)
         assert len(result) == 1

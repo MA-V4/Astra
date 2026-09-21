@@ -5,11 +5,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        space:   { DEFAULT: "#03060F", "100": "#060D1A", "200": "#0A1628" },
-        aurora:  { DEFAULT: "#00FFB2", dim: "#00CC8E" },
-        stellar: { DEFAULT: "#4DA6FF", dim: "#2D7ACC" },
-        alert:   { DEFAULT: "#FF4D6D", dim: "#CC3D57" },
-        orbit:   { DEFAULT: "#FFB84D", dim: "#CC8F2D" },
+        space:   { DEFAULT: "#030609", panel: "rgba(4,10,20,0.88)" },
+        aurora:  { DEFAULT: "#00E5A0" },
+        stellar: { DEFAULT: "#3D9BE9" },
+        alert:   { DEFAULT: "#FF3355" },
+        orbit:   { DEFAULT: "#F0A030" },
       },
       fontFamily: {
         mono: ["JetBrains Mono", "monospace"],

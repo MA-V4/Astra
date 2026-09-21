@@ -3,27 +3,27 @@
 import { useAstraStore } from "@/store"
 
 export function StatusBar() {
-  const { satellites, flights, earthquakes, anomalies, lastUpdate } = useAstraStore()
+  const { anomalies, lastUpdate, playback } = useAstraStore()
+  const crit = anomalies.filter(a => a.severity === "critical").length
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-6 glass flex items-center justify-between px-6 z-10">
-      <div className="flex items-center gap-6 text-[10px] font-mono text-white/30">
-        <span>
-          <span className="text-aurora/60">● </span>LIVE
-        </span>
-        <span>DATA: CELESTRAK · OPENSKY · USGS · NASA FIRMS</span>
+    <div className="absolute bottom-0 left-0 right-0 h-5 flex items-center justify-between px-4 z-10 mono"
+      style={{ background: "rgba(3,6,9,0.9)", borderTop: "1px solid rgba(40,80,140,0.15)" }}>
+      <div className="flex items-center gap-4">
+        <span className="text-[8px] text-[#00E5A0]/60 tracking-widest">● LIVE</span>
+        <span className="text-[8px] text-white/20 tracking-widest">DATA: CELESTRAK · OPENSKY · USGS · NASA FIRMS</span>
       </div>
-      <div className="flex items-center gap-4 text-[10px] font-mono text-white/30">
-        {anomalies.length > 0 && (
-          <span className="text-alert/70">
-            {anomalies.length} ANOMAL{anomalies.length === 1 ? "Y" : "IES"}
+      <div className="flex items-center gap-4">
+        {crit > 0 && (
+          <span className="text-[8px] text-[#FF3355]/60 tracking-widest">
+            {crit} CRITICAL
           </span>
         )}
-        <span>
-          UPDATED{" "}
-          {lastUpdate
-            ? new Date(lastUpdate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
-            : "--:--:--"}
+        {playback.active && (
+          <span className="text-[8px] text-[#F0A030]/60 tracking-widest">HISTORY MODE</span>
+        )}
+        <span className="text-[8px] text-white/20">
+          {lastUpdate ? new Date(lastUpdate).toISOString().slice(11, 19) + " UTC" : "--:--:--"}
         </span>
       </div>
     </div>

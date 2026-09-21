@@ -199,15 +199,15 @@ def infer_change_type(bbox: BBox, days: int) -> str:
     lat   = (bbox.min_lat + bbox.max_lat) / 2
     month = __import__("datetime").datetime.now().month
 
-    # Tropical belt — vegetation and fire are most common
+    # Tropical belt - vegetation and fire are most common
     if -23.5 < lat < 23.5:
         return "vegetation" if month in (4, 5, 6, 7, 8) else "fire"
 
-    # Arctic/Antarctic — ice and water changes dominate
+    # Arctic/Antarctic - ice and water changes dominate
     if abs(lat) > 60:
         return "water"
 
-    # Mid-latitudes — construction and agriculture
+    # Mid-latitudes - construction and agriculture
     return "construction" if days < 90 else "vegetation"
 
 

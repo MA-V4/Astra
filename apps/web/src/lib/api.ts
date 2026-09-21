@@ -14,6 +14,8 @@ export const api = {
   fires:       () => get<any[]>("/fires"),
   launches:    () => get<any[]>("/launches"),
   anomalies:   () => get<any[]>("/anomalies"),
+  history: (ts: number) => get<any>(`/history?ts=${ts}`),
+  historyRange: () => get<{ earliest: number; latest: number }>(`/history/range`),
   briefing:    (lat: number, lon: number, radius_km: number) =>
     get<{ text: string; sources: string[] }>(`/briefing?lat=${lat}&lon=${lon}&r=${radius_km}`),
 }

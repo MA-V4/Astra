@@ -8,9 +8,10 @@ router = APIRouter()
 
 _flight_cache:      list[dict[str, Any]] = []
 _flight_fetched_at: float = 0
-FLIGHT_TTL = 15  # seconds
+FLIGHT_TTL = 15
 
-OPENSKY_URL = "https://opensky-network.org/api/states/all"
+# adsb.fi - community feed, no auth, no rate limits
+ADSB_URL = "https://opendata.adsb.fi/api/v2/flights"
 
 
 @router.get("/flights")
@@ -22,34 +23,36 @@ async def get_flights():
 
     try:
         async with httpx.AsyncClient() as client:
-            r = await client.get(OPENSKY_URL, timeout=10)
+            r = await client.get(ADSB_URL, timeout=10,
+                headers={"User-Agent": "ASTRA/0.1 orbital intelligence platform"})
             r.raise_for_status()
-            data  = r.json()
-            states = data.get("states", []) or []
+            data   = r.json()
+            states = data.get("aircraft", []) or []
 
             _flight_cache = [
                 {
-                    "icao24":          s[0],
-                    "callsign":        (s[1] or "").strip(),
-                    "origin_country":  s[2] or "",
-                    "time_position":   s[3],
-                    "last_contact":    s[4],
-                    "longitude":       s[5],
-                    "latitude":        s[6],
-                    "baro_altitude":   s[7],
-                    "on_ground":       s[8],
-                    "velocity":        s[9],
-                    "true_track":      s[10],
-                    "vertical_rate":   s[11],
-                    "geo_altitude":    s[13],
-                    "squawk":          s[14],
-                    "spi":             s[15],
-                    "position_source": s[16],
+                    "icao24":         s.get("hex", ""),
+                    "callsign":       (s.get("flight", "") or "").strip(),
+                    "origin_country": s.get("r", ""),
+                    "time_position":  s.get("seen_pos", 0),
+                    "last_contact":   s.get("seen", 0),
+                    "longitude":      s.get("lon"),
+                    "latitude":       s.get("lat"),
+                    "baro_altitude":  (s.get("alt_baro") or 0) * 0.3048 if isinstance(s.get("alt_baro"), (int, float)) else 0,
+                    "on_ground":      s.get("alt_baro") == "ground",
+                    "velocity":       (s.get("gs") or 0) * 0.514444,
+                    "true_track":     s.get("track") or 0,
+                    "vertical_rate":  s.get("baro_rate") or 0,
+                    "geo_altitude":   (s.get("alt_geom") or 0) * 0.3048,
+                    "squawk":         s.get("squawk", ""),
+                    "spi":            False,
+                    "position_source": 0,
                 }
                 for s in states
-                if s[5] is not None and s[6] is not None
+                if s.get("lon") is not None and s.get("lat") is not None
             ]
             _flight_fetched_at = time.time()
+            print(f"Flights updated: {len(_flight_cache)} aircraft from adsb.fi")
     except Exception as e:
         print(f"flight fetch failed: {e}")
 

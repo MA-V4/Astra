@@ -4,78 +4,69 @@ import { useAstraStore } from "@/store"
 import { useEffect, useState } from "react"
 
 function Clock() {
-  const [time, setTime] = useState("")
+  const [t, setT] = useState("")
   useEffect(() => {
     const fmt = () => {
       const n = new Date()
-      setTime(
-        n.toUTCString().slice(17, 25) + " UTC " +
-        n.getFullYear() + "-" +
-        String(n.getMonth() + 1).padStart(2, "0") + "-" +
-        String(n.getDate()).padStart(2, "0")
-      )
+      const pad = (x: number) => String(x).padStart(2, "0")
+      setT(`${pad(n.getUTCHours())}:${pad(n.getUTCMinutes())}:${pad(n.getUTCSeconds())} UTC ${n.getUTCFullYear()}-${pad(n.getUTCMonth()+1)}-${pad(n.getUTCDate())}`)
     }
-    fmt()
-    const id = setInterval(fmt, 1000)
-    return () => clearInterval(id)
+    fmt(); const id = setInterval(fmt, 1000); return () => clearInterval(id)
   }, [])
-  return <span className="font-mono text-xs text-stellar/80">{time}</span>
+  return <span className="mono text-[11px] text-white/40">{t}</span>
 }
 
 export function TopBar() {
-  const { satellites, flights, vessels, layers, setViewMode, camera } = useAstraStore()
-  const satOn     = layers.find(l => l.id === "satellites")?.enabled
-  const flightOn  = layers.find(l => l.id === "flights")?.enabled
+  const { satellites, flights, camera, setViewMode } = useAstraStore()
+  const airborne = flights.filter(f => !f.on_ground).length
 
   return (
-    <div className="absolute top-0 left-0 right-0 h-12 glass flex items-center justify-between px-6 z-10">
+    <div className="absolute top-0 left-0 right-0 h-10 flex items-center justify-between px-5 z-10"
+      style={{ background: "linear-gradient(to bottom, rgba(3,6,9,0.95), transparent)" }}>
+
       {/* Wordmark */}
       <div className="flex items-center gap-3">
-        <div className="w-5 h-5 relative">
-          <div className="absolute inset-0 rounded-full border border-aurora/60 animate-pulse_slow" />
-          <div className="absolute inset-1 rounded-full border border-aurora/30" />
-          <div className="absolute inset-[6px] rounded-full bg-aurora" />
+        <div className="relative w-4 h-4">
+          <div className="absolute inset-0 rounded-full border border-[#00E5A0]/40" />
+          <div className="absolute inset-[3px] rounded-full bg-[#00E5A0]/80" />
         </div>
-        <span className="font-mono font-semibold text-sm tracking-[0.2em] text-white">
-          ASTRA
-        </span>
-        <span className="text-xs text-white/20 font-mono">ORBITAL INTELLIGENCE</span>
+        <span className="mono text-[11px] font-medium tracking-[0.25em] text-white/90">ASTRA</span>
+        <span className="mono text-[9px] text-white/20 tracking-widest">ORBITAL INTELLIGENCE</span>
       </div>
 
-      {/* Live stats */}
-      <div className="flex items-center gap-6 text-xs font-mono">
-        {satOn && (
-          <span className="text-stellar">
-            <span className="text-stellar/50">SAT </span>
-            {satellites.length.toLocaleString()}
-          </span>
-        )}
-        {flightOn && (
-          <span className="text-aurora">
-            <span className="text-aurora/50">FLT </span>
-            {flights.filter(f => !f.on_ground).length.toLocaleString()}
-          </span>
-        )}
+      {/* Live counters */}
+      <div className="flex items-center gap-5">
+        <Stat label="SAT" value={satellites.length} color="#3D9BE9" />
+        <Stat label="FLT" value={airborne}           color="#00E5A0" />
         <Clock />
       </div>
 
-      {/* View mode switcher */}
-      <div className="flex items-center gap-1">
+      {/* View modes */}
+      <div className="flex items-center gap-px">
         {(["orbital", "globe", "intelligence"] as const).map(mode => (
           <button
             key={mode}
             onClick={() => setViewMode(mode)}
             className={[
-              "px-3 py-1 rounded text-xs font-mono uppercase tracking-widest transition-all",
+              "px-3 h-6 mono text-[9px] tracking-widest uppercase transition-all",
               camera.mode === mode
-                ? "bg-stellar/20 text-stellar border border-stellar/40"
-                : "text-white/30 hover:text-white/60",
+                ? "text-white/80 bg-white/8 border-b border-[#3D9BE9]/60"
+                : "text-white/25 hover:text-white/50",
             ].join(" ")}
           >
             {mode}
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+function Stat({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="mono text-[9px] text-white/25 tracking-widest">{label}</span>
+      <span className="mono text-[11px] font-medium" style={{ color }}>{value.toLocaleString()}</span>
     </div>
   )
 }

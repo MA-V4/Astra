@@ -55,7 +55,7 @@ const FRAG_SHADER = /* glsl */`
     vec4 nightColor = texture2D(nightTexture, vUv);
 
     // Darken the day side slightly at the terminator
-    vec3 ambientDay  = dayColor.rgb * max(cosAngle, 0.05);
+    vec3 ambientDay  = dayColor.rgb * max(cosAngle * 1.2 + 0.15, 0.15);
     vec3 ambientNight = nightColor.rgb * 0.9;
 
     gl_FragColor = vec4(mix(ambientNight, ambientDay, blendFactor), 1.0);

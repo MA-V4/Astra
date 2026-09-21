@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import satellites, flights, earthquakes, fires, launches, anomalies, vessels
-from .routes import change_detection
-from .routes import briefing
 from dotenv import load_dotenv
 
-load_dotenv
+from .routes import satellites, flights, earthquakes, fires, launches, anomalies, vessels
+from .routes import change_detection, briefing, history
+from .routes.vessels import start_vessel_stream
+from .services.history import run_snapshot_loop, init_db
+
+load_dotenv()
 
 app = FastAPI(title="ASTRA API", version="0.1.0")
 
@@ -25,6 +27,26 @@ app.include_router(anomalies.router)
 app.include_router(vessels.router)
 app.include_router(change_detection.router)
 app.include_router(briefing.router)
+app.include_router(history.router)
+
+
+@app.on_event("startup")
+async def startup():
+    import asyncio
+    init_db()
+    start_vessel_stream()
+
+    # Import caches from live routes for snapshot loop
+    from .routes.flights     import _flight_cache
+    from .routes.earthquakes import _quake_cache
+    from .routes.fires       import _fire_cache
+
+    asyncio.create_task(run_snapshot_loop(
+        get_flights     = lambda: _flight_cache,
+        get_earthquakes = lambda: _quake_cache,
+        get_fires       = lambda: _fire_cache,
+    ))
+
 
 @app.get("/health")
 async def health():

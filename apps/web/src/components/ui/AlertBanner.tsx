@@ -2,42 +2,32 @@
 
 import { useAstraStore } from "@/store"
 
-const SEVERITY_STYLES: Record<string, { bg: string; border: string; text: string; dot: string }> = {
-  critical: { bg: "bg-alert/10",  border: "border-alert/40",  text: "text-alert",  dot: "bg-alert" },
-  high:     { bg: "bg-[#FF6B35]/10", border: "border-[#FF6B35]/40", text: "text-[#FF6B35]", dot: "bg-[#FF6B35]" },
-  medium:   { bg: "bg-orbit/10",  border: "border-orbit/40",  text: "text-orbit",  dot: "bg-orbit" },
-  low:      { bg: "bg-stellar/10", border: "border-stellar/40", text: "text-stellar", dot: "bg-stellar" },
+const SEV_COLOR = {
+  critical: "#FF3355",
+  high:     "#FF6535",
+  medium:   "#F0A030",
+  low:      "#3D9BE9",
 }
 
 export function AlertBanner() {
-  const { anomalies, setSelected, layers } = useAstraStore()
+  const { anomalies, layers } = useAstraStore()
   const enabled = layers.find(l => l.id === "anomalies")?.enabled ?? true
-
   if (!enabled || anomalies.length === 0) return null
 
-  const top = anomalies[0]
-  const style = SEVERITY_STYLES[top.severity] ?? SEVERITY_STYLES.low
+  const top   = anomalies[0]
+  const color = SEV_COLOR[top.severity as keyof typeof SEV_COLOR] ?? "#3D9BE9"
+  const rest  = anomalies.length - 1
 
   return (
-    <div
-      onClick={() => setSelected({ kind: "anomaly", data: top })}
-      className={`
-        absolute top-14 left-1/2 -translate-x-1/2 mt-2
-        flex items-center gap-3 px-4 py-2.5 rounded-full
-        glass cursor-pointer border transition-all hover:scale-105
-        ${style.bg} ${style.border} z-20
-      `}
-    >
-      <span className={`w-2 h-2 rounded-full animate-pulse flex-shrink-0 ${style.dot}`} />
-      <span className={`text-xs font-mono font-semibold uppercase tracking-widest ${style.text}`}>
-        {top.severity}
-      </span>
-      <span className="text-xs font-mono text-white/60 max-w-xs truncate">{top.title}</span>
-      {anomalies.length > 1 && (
-        <span className="text-[10px] font-mono text-white/30">
-          +{anomalies.length - 1} more
-        </span>
-      )}
+    <div className="absolute top-10 left-1/2 -translate-x-1/2 mt-1 flex items-center gap-2.5 px-3 py-1.5 rounded z-20 mono"
+      style={{
+        background: `rgba(${top.severity === "critical" ? "255,51,85" : top.severity === "high" ? "255,101,53" : "240,160,48"},0.08)`,
+        border:     `1px solid ${color}30`,
+      }}>
+      <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: color }} />
+      <span className="text-[9px] font-medium tracking-widest uppercase" style={{ color }}>{top.severity}</span>
+      <span className="text-[10px] text-white/50 max-w-xs truncate">{top.title}</span>
+      {rest > 0 && <span className="text-[9px] text-white/20">+{rest}</span>}
     </div>
   )
 }

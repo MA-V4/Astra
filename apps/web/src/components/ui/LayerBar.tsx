@@ -19,27 +19,29 @@ export function LayerBar() {
   const { layers, toggleLayer } = useAstraStore()
 
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-1 glass rounded-full px-3 py-2 z-10">
-      {layers.map(layer => (
+    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-px z-10"
+      style={{
+        background: "rgba(4,10,20,0.8)",
+        border:     "1px solid rgba(40,80,140,0.2)",
+        borderRadius: 6,
+        padding: "4px 8px",
+        backdropFilter: "blur(16px)",
+      }}>
+      {layers.map((layer, i) => (
         <button
           key={layer.id}
           onClick={() => toggleLayer(layer.id as LayerId)}
           title={layer.label}
-          className={[
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono transition-all",
-            layer.enabled
-              ? "text-white"
-              : "text-white/25 hover:text-white/50",
-          ].join(" ")}
-          style={layer.enabled ? { color: layer.color } : {}}
+          className="flex items-center gap-1 px-2 py-1 rounded transition-all hover:bg-white/5"
+          style={{ opacity: layer.enabled ? 1 : 0.25 }}
         >
-          <span>{ICONS[layer.id as LayerId]}</span>
-          <span className="hidden sm:inline tracking-widest uppercase text-[10px]">
+          <span className="text-[10px]" style={{ color: layer.enabled ? layer.color : "rgba(255,255,255,0.4)" }}>
+            {ICONS[layer.id as LayerId]}
+          </span>
+          <span className="mono text-[8px] tracking-widest uppercase hidden sm:inline"
+            style={{ color: layer.enabled ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)" }}>
             {layer.label.split(" ")[0]}
           </span>
-          {layer.count > 0 && layer.enabled && (
-            <span className="text-[10px] opacity-60">{layer.count}</span>
-          )}
         </button>
       ))}
     </div>

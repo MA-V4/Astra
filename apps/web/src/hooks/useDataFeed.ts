@@ -34,7 +34,7 @@ export function useDataFeed() {
 
   const isOn = (id: string) => layers.find(l => l.id === id)?.enabled ?? false
 
-  // SATELLITES — fetch TLEs then propagate locally
+  // SATELLITES - fetch TLEs then propagate locally
   useEffect(() => {
     let records: Array<{ obj: SatelliteObject; rec: ReturnType<typeof parseTLE> }> = []
 
@@ -154,7 +154,7 @@ export function useDataFeed() {
     return () => clearInterval(id)
   }, [])
 
-  // ANOMALIES — poll every 30 seconds
+  // ANOMALIES - poll every 30 seconds
 useEffect(() => {
   const fetchA = async () => {
     try { useAstraStore.getState().setAnomalies(await api.anomalies()); touch() }
@@ -162,6 +162,17 @@ useEffect(() => {
   }
   fetchA()
   const id = setInterval(fetchA, 30_000)
+  return () => clearInterval(id)
+}, [layers])
+
+useEffect(() => {
+  if (!isOn("vessels")) return
+  const fetchV = async () => {
+    try { useAstraStore.getState().setVessels(await api.vessels()); touch() }
+    catch (e) { console.warn("vessel fetch failed:", e) }
+  }
+  fetchV()
+  const id = setInterval(fetchV, 30_000)
   return () => clearInterval(id)
 }, [layers])
 }
