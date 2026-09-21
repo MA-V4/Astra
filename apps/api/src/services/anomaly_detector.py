@@ -141,7 +141,7 @@ def detect_large_earthquakes(earthquakes: list[dict]) -> list[Anomaly]:
             continue
 
         severity = "medium"
-        if mag >= 7.0: severity = "high"
+        if mag >= 6.5: severity = "high"
         if mag >= 8.0: severity = "critical"
 
         anomalies.append(Anomaly(

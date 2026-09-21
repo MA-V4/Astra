@@ -33,18 +33,17 @@ export function ISSRing() {
 
   const geometry = useMemo(() => buildOrbitRing(ISS_RADIUS, INCLINATION), [])
 
-  return (
-    <group>
-      {/* Orbital path */}
-      <line geometry={geometry}>
-        <lineBasicMaterial
-          color={0x00FFB2}
-          transparent
-          opacity={0.2}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </line>
+  const orbitLine = useMemo(() => {
+  const mat = new THREE.LineBasicMaterial({
+    color: 0x00FFB2, transparent: true, opacity: 0.2,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  })
+  return new THREE.Line(geometry, mat)
+}, [geometry])
+
+return (
+  <group>
+    <primitive object={orbitLine} />
 
       {/* Glow ring at current ISS position */}
       {iss.position && (() => {

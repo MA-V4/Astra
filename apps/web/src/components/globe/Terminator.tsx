@@ -4,7 +4,6 @@ import { useMemo, useRef, useEffect } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 
-// Approximates the sun direction vector in world space based on UTC time.
 function sunDirection(): THREE.Vector3 {
   const now   = new Date()
   const hours = now.getUTCHours() + now.getUTCMinutes() / 60
@@ -18,57 +17,44 @@ function sunDirection(): THREE.Vector3 {
   ).normalize()
 }
 
-// Build a ring of points along the great circle perpendicular to the sun direction.
-// This is the day/night terminator line.
 function buildTerminator(sun: THREE.Vector3, radius = 1.002, segments = 256): THREE.BufferGeometry {
-  // Perpendicular basis vectors
-  const up   = Math.abs(sun.y) < 0.99 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)
-  const u    = new THREE.Vector3().crossVectors(sun, up).normalize()
-  const v    = new THREE.Vector3().crossVectors(sun, u).normalize()
-
-  const positions = new Float32Array((segments + 1) * 3)
+  const up  = Math.abs(sun.y) < 0.99 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)
+  const u   = new THREE.Vector3().crossVectors(sun, up).normalize()
+  const v   = new THREE.Vector3().crossVectors(sun, u).normalize()
+  const pos = new Float32Array((segments + 1) * 3)
   for (let i = 0; i <= segments; i++) {
-    const angle = (i / segments) * Math.PI * 2
-    const x = u.x * Math.cos(angle) + v.x * Math.sin(angle)
-    const y = u.y * Math.cos(angle) + v.y * Math.sin(angle)
-    const z = u.z * Math.cos(angle) + v.z * Math.sin(angle)
-    positions[i * 3]     = x * radius
-    positions[i * 3 + 1] = y * radius
-    positions[i * 3 + 2] = z * radius
+    const a = (i / segments) * Math.PI * 2
+    pos[i * 3]     = (u.x * Math.cos(a) + v.x * Math.sin(a)) * radius
+    pos[i * 3 + 1] = (u.y * Math.cos(a) + v.y * Math.sin(a)) * radius
+    pos[i * 3 + 2] = (u.z * Math.cos(a) + v.z * Math.sin(a)) * radius
   }
-
   const geo = new THREE.BufferGeometry()
-  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3))
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3))
   return geo
 }
 
 export function Terminator() {
-  const lineRef = useRef<THREE.Line>(null!)
-  const sunRef  = useRef(sunDirection())
+  const sunRef = useRef(sunDirection())
 
   useEffect(() => {
     const id = setInterval(() => { sunRef.current = sunDirection() }, 60_000)
     return () => clearInterval(id)
   }, [])
 
-  useFrame(() => {
-    if (!lineRef.current) return
+  const lineObj = useMemo(() => {
     const geo = buildTerminator(sunRef.current)
-    lineRef.current.geometry.dispose()
-    lineRef.current.geometry = geo
+    const mat = new THREE.LineBasicMaterial({
+      color: 0xFFEFAA, transparent: true, opacity: 0.35,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    })
+    return new THREE.Line(geo, mat)
+  }, [])
+
+  useFrame(() => {
+    const geo = buildTerminator(sunRef.current)
+    lineObj.geometry.dispose()
+    lineObj.geometry = geo
   })
 
-  const initialGeo = useMemo(() => buildTerminator(sunRef.current), [])
-
-  return (
-    <line ref={lineRef} geometry={initialGeo}>
-      <lineBasicMaterial
-        color={0xFFEFAA}
-        transparent
-        opacity={0.35}
-        blending={THREE.AdditiveBlending}
-        depthWrite={false}
-      />
-    </line>
-  )
+  return <primitive object={lineObj} />
 }

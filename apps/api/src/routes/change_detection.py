@@ -23,7 +23,8 @@ async def change_detection(
     before: str   = Query(None, description="YYYY-MM-DD"),
     after:  str   = Query(None, description="YYYY-MM-DD"),
 ):
-    now    = datetime.utcnow()
+    import datetime as dt
+    now = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
     after  = after  or now.strftime("%Y-%m-%d")
     before = before or (now - timedelta(days=30)).strftime("%Y-%m-%d")
 

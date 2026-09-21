@@ -99,18 +99,26 @@ export function FootprintLayer() {
     [lat, lon, altitude_km, footprint_km],
   )
 
+  const ringLine = useMemo(() => new THREE.Line(
+    ringGeo,
+    new THREE.LineBasicMaterial({
+      color: 0x4DA6FF, transparent: true, opacity: 0.7,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    })
+  ), [ringGeo])
+
+  const coneSegs = useMemo(() => new THREE.LineSegments(
+    coneGeo,
+    new THREE.LineBasicMaterial({
+      color: 0x4DA6FF, transparent: true, opacity: 0.08,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    })
+  ), [coneGeo])
+
   return (
     <group>
-      {/* Footprint ring on Earth's surface */}
-      <line geometry={ringGeo}>
-        <lineBasicMaterial
-          color={0x4DA6FF}
-          transparent
-          opacity={0.7}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </line>
+      <primitive object={ringLine} />
+      <primitive object={coneSegs} />
 
       {/* Cone lines from satellite to footprint */}
       <lineSegments geometry={coneGeo}>

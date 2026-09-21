@@ -44,8 +44,8 @@ def filter_region(items: list[dict], lat: float, lon: float, radius_km: float) -
 
     result = []
     for item in items:
-        item_lat = item.get("lat") or item.get("latitude")
-        item_lon = item.get("lon") or item.get("longitude")
+        item_lat = item.get("lat") if "lat" in item else item.get("latitude")
+        item_lon = item.get("lon") if "lon" in item else item.get("longitude")
         if item_lat is None or item_lon is None:
             continue
         if dist(float(item_lat), float(item_lon)) <= radius_km:
