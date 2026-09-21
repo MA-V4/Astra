@@ -8,15 +8,21 @@ Where other platforms display data, ASTRA analyses it. Every layer talks to ever
 
 ---
 
-## What it looks like
+![Earth view showing day/night shader, city lights, and live anomaly detection](docs/earth.png)
 
-Earth rendered from space with 8,000+ satellites tracked via real SGP4 orbital propagation, updating every 2 seconds. The day/night terminator moves in real time driven by the actual sun direction computed from UTC. City lights glow on the dark side. The ISS traces its 51.6° inclined orbit as a bright aurora-green dot. Click any satellite and its sensor footprint - the area it can currently observe - projects as a cone down to Earth's surface.
+*Earth from orbit - day/night GLSL shader driven by real sun direction, city lights on the dark side, live fire anomalies detected by the cross-layer analysis engine, 187 active anomalies flagged.*
 
-Toggle flights and 10,000 live aircraft appear as green points at their real altitudes. Seismic events show as magnitude-scaled dots from the USGS feed. Active fires from NASA FIRMS appear as orange clusters. Upcoming launches are marked at their pad coordinates. Dark vessels - ships that have gone silent on AIS - appear in red.
+---
 
-The anomaly engine runs continuously in the background, cross-correlating all feeds and surfacing events that no single layer would show: seismic swarms, unusual flight density concentrations, high fire radiative power clusters. The alert banner shows the highest-severity active event.
+![Solar system orrery showing all planets at real current positions](docs/orrery.png)
 
-Open the solar system orrery and see all eight planets at their real current positions for today's date, orbiting at correct relative speeds. Click any planet and navigate to it. Each planet is rendered with a custom GLSL procedural shader - Jupiter's banded cloud system with the Great Red Spot, Saturn's rings, Mars with polar ice caps, Neptune's dark storm. The Sun has animated convective cell surface noise, sunspots, a corona glow, and a diffuse flare shell.
+*The solar system orrery - all eight planets at their real current positions for today's date, orbiting at correct relative orbital speeds. Click any planet to inspect it, navigate to visit.*
+
+---
+
+![Jupiter rendered with procedural GLSL cloud bands and the Great Red Spot](docs/jupiter.png)
+
+*Jupiter - procedural GLSL shader rendering horizontal cloud bands with turbulence, the Great Red Spot as an animated swirling storm, and four Galilean moons in orbit. Juno and Europa Clipper shown as active mission dots.*
 
 ---
 
@@ -94,7 +100,7 @@ Active fire detections from NASA FIRMS VIIRS satellite sensor. Each detection po
 The cross-layer analysis engine runs on every `/anomalies` request:
 
 - **Seismic swarms** - 3+ earthquakes within 200km in the same hour
-- **Large earthquakes** - any M6.0+ event in the past 24 hours
+- **Large earthquakes** - any M6.5+ event in the past 24 hours
 - **Fire complexes** - 10+ FIRMS detections with combined FRP above 500MW
 - **Flight density clusters** - grid cells with 2.5× the average aircraft density
 
@@ -181,7 +187,7 @@ All three are optional. Without them, fires return empty, vessels return empty, 
 
 ## API reference
 
-All endpoints return JSON. All free. No authentication required.
+All endpoints return JSON. No authentication required.
 
 | Endpoint | Description | Cache TTL |
 |---|---|---|
